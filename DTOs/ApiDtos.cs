@@ -13,7 +13,7 @@ public record UpdateDocumentDto(
     [Required(ErrorMessage = "Title is required"), MaxLength(200)] string Title,
     [Required(ErrorMessage = "Content is required")] string Content
 );
-public record ReviewActionDto(string? Remarks);
+public record ReviewActionDto(string? Status);
 public class PagedResult<T>
 {
     public IEnumerable<T> Data { get; set; } = new List<T>();

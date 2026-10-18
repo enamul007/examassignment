@@ -9,16 +9,17 @@ namespace ExamAssignmentApi.Controllers;
 
 [Route("api/authorizer/requests")]
 [ApiController]
-[Authorize(Roles = "Authorizer")]
+
 public class AuthorizerController : ControllerBase
 {
     private readonly AppDbContext _context;
     public AuthorizerController(AppDbContext context) => _context = context;
 
     [HttpGet("checked")]
-    public async Task<IActionResult> GetCheckedRequests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    [Authorize(Roles = "Authorizer, Checker")]
+    public async Task<IActionResult> GetCheckedRequests([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string status = "")
     {
-        var query = _context.DocumentRequests.Include(r => r.CreatedByUser).Where(r => r.Status == "Checked");
+        var query = _context.DocumentRequests.Include(r => r.CreatedByUser).Where(r => r.Status == status);
         var totalCount = await query.CountAsync();
         var data = await query.OrderByDescending(r => r.UpdatedAt).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         return Ok(new PagedResult<DocumentRequest> { Data = data, TotalCount = totalCount, PageNumber = pageNumber, PageSize = pageSize });
@@ -29,10 +30,18 @@ public class AuthorizerController : ControllerBase
     {
         var request = await _context.DocumentRequests.FindAsync(id);
         if (request == null) return NotFound(new { message = "Record not found." });
-        if (request.Status != "Checked") return BadRequest(new { message = "Must be Checked status." });
+       // if (request.Status != "Checked") return BadRequest(new { message = "Must be Checked status." });
 
-        request.Status = "Authorized";
-        request.Remarks = dto?.Remarks ?? "Authorized";
+        //request.Status = "Authorized";
+        //request.Remarks = dto?.Status ?? "Authorized";
+        if (dto != null && !string.IsNullOrEmpty(dto.Status))
+        {
+            if (request.Status != dto?.Status)
+            {
+                request.Status = dto?.Status ?? "Approved by Checker";
+            }
+            
+        }
         request.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return Ok(new { message = "Record successfully Authorized.", data = request });

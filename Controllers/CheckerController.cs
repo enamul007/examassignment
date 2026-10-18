@@ -31,8 +31,10 @@ public class CheckerController : ControllerBase
         if (request == null) return NotFound(new { message = "Record not found." });
         if (request.Status != "Pending") return BadRequest(new { message = "Invalid status." });
 
-        request.Status = "Checked";
-        request.Remarks = dto?.Remarks ?? "Approved by Checker";
+        if (dto != null && !string.IsNullOrEmpty(dto.Status))
+        {
+            request.Remarks = dto?.Status ?? "Approved by Checker";
+        }
         request.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return Ok(new { message = "Record approved and marked as Checked.", data = request });
@@ -46,7 +48,7 @@ public class CheckerController : ControllerBase
         if (request.Status != "Pending") return BadRequest(new { message = "Invalid status." });
 
         request.Status = "Rejected";
-        request.Remarks = dto?.Remarks ?? "Rejected by Checker";
+        request.Remarks = dto?.Status ?? "Rejected by Checker";
         request.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return Ok(new { message = "Record rejected by Checker.", data = request });
