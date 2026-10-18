@@ -33,7 +33,7 @@ export class LoginComponent {
                 let routePath = '';
                 switch (response.role) {
                     case 'User':
-                        routePath = '/user';
+                        routePath = '/documents';
                         break;
                     case 'Checker':
                         routePath = '/checker';
@@ -46,7 +46,11 @@ export class LoginComponent {
                         break;
                 }
                 const title = `This is ${response.role} Page`;
-                this.router.navigate([routePath, title]);
+                if(response.role==='User'){
+                this.router.navigate([routePath]);
+                }else{
+                    this.router.navigate([routePath, title]);
+                }
             },
             error: (err) => {
                 this.router.navigate(['/auth/login']);
