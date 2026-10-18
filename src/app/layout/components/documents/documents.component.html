@@ -102,10 +102,18 @@
                                     pTooltip="View" tooltipPosition="top" (click)="viewDocument(document)">
                                 </button>
                                 @if(user().role=='Checker'){
+                                @if(document.status!='Checked'){
                                 <button pButton type="button" icon="pi pi-check-circle"
                                     class="p-button-text p-button-rounded" pTooltip="Approved" tooltipPosition="top"
                                     (click)="ApprovedDocument(document)">
+                                </button>}
+                                @if(document.status!='Reject'){
+                                <button pButton type="button" icon="pi pi-times-circle"
+                                    class="p-button-text p-button-rounded" pTooltip="Reject" tooltipPosition="top"
+                                    (click)="RejectdDocument(document)">
                                 </button>
+                                }
+
                                 }
                                 @else if(user().role=='Authorizer'){
                                 <button pButton type="button" icon="pi pi-check-circle"

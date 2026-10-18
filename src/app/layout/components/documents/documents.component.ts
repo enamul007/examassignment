@@ -131,6 +131,41 @@ export class Documents {
             }
         });
     }
+    
+    RejectdDocument(document: any): void {
+        let status: any = { status: '' };
+        if (this.user().role == 'Checker') {
+            status.status='Reject'
+        }
+        this.confirmationService.confirm({
+            message: 'Are you sure to Reject this Document?',
+            header: 'Confirm',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.userService.approve(document.id, status).subscribe({
+                    next: (value: any) => {
+                        if (value) {
+                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Document Approved Successfully', life: 3000 });
+                            if (this.user().role == 'Authorizer') {
+                                this.loadDocuments(1, 10, 'Authorized');
+                            } else if (this.user().role == 'Checker') {
+                                this.loadDocuments(1, 10, 'Pending');
+                            } else {
+                                this.loadDocuments(this.first() / this.pageSize() + 1, this.pageSize(), this.searchTerm);
+                            }
+                        } else {
+                            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to approve document' });
+                        }
+                    },
+                    error: (error) => {
+                        debugger;
+                        const errorMessage = error?.error?.message || error?.message || 'Failed to approve document';
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage });
+                    }
+                });
+            }
+        });
+    }
     editDocument(document: any): void {
         this.isEditMode.set(true);
         this.submitted.set(false);
