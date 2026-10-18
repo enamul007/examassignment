@@ -52,6 +52,11 @@ For end-to-end (e2e) testing, run:
 ```bash
 ng e2e
 ```
+the username/userid and their password is
+1.(username/userid)user1 & (password)Password123!
+2.(username/userid)authorizer1 & (password)Password123!
+3.(username/userid)checker1 & (password)Password123!
+
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
