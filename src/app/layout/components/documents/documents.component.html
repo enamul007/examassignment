@@ -1,0 +1,229 @@
+<div class="space-y-6">
+    <!-- PAGE HEADER -->
+    <p-card class="[&_.p-card-body]:p-4 [&_.p-card-content]:p-0">
+        <div class="flex justify-between items-center w-full">
+            <!-- Left: Title Section -->
+            <div class="flex align-items-center gap-3">
+                <div>
+                    <h1 class="m-0 text-xl font-bold">Documents</h1>
+                </div>
+            </div>
+
+            <!-- Right: Action Button -->
+            @if(user().role=='User'){
+            <div class="shrink-0">
+                <button pButton type="button" label="New Document" icon="pi pi-plus" class="add-user-button"
+                    (click)="openNew()">
+                </button>
+            </div>}
+        </div>
+    </p-card>
+    <!-- TABLE CARD -->
+    <p-card>
+        <div class="users-card">
+            <div class="table-toolbar flex justify-between items-center w-full gap-4">
+                <!-- Left Side: Title & Badge -->
+                <div class="toolbar-left flex items-center gap-3 shrink-0">
+                    <h2 class="m-0 text-lg font-semibold">Document List</h2>
+                    <span class="user-count">{{ totalRecords() }}</span>
+                </div>
+
+                <!-- Right Side: Search Box & Action Buttons -->
+                <div class="toolbar-right flex items-center gap-2">
+
+                    <!-- Search Input with Icon Inside (Right Side) -->
+                    <div class="relative flex items-center min-w-[50]">
+                        <!-- pr-10 keeps text away from the right side icon -->
+                        <input pInputText type="text" class="pr-10 w-full sm:w-[50]" placeholder="Search document..."
+                            [(ngModel)]="searchTerm" (keyup.enter)="searchAuthorizers()" />
+                        <!-- absolute right-3 places the icon exactly on the right -->
+                        <i class="pi pi-search absolute right-3 text-gray-500 cursor-pointer"
+                            (click)="searchAuthorizers()"></i>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button pButton type="button" icon="pi pi-search" class="p-button-text" pTooltip="Search"
+                            tooltipPosition="top" (click)="searchAuthorizers()">
+                        </button>
+                        @if(user().role=='Authorizer'){
+                        <button pButton type="button" icon="pi pi-refresh" class="p-button-text refresh-button"
+                            pTooltip="Refresh" tooltipPosition="top" (click)="loadDocuments(1, pageSize(), 'Checked')">
+                        </button>
+                        }@else{
+                        <button pButton type="button" icon="pi pi-refresh" class="p-button-text refresh-button"
+                            pTooltip="Refresh" tooltipPosition="top" (click)="loadDocuments(1, pageSize(), '')">
+                        </button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- SERVER SIDE TABLE -->
+            <p-table [value]="documents()" [loading]="loading()" [lazy]="true" [lazyLoadOnInit]="true"
+                [paginator]="true" [rows]="pageSize()" [first]="first()" [totalRecords]="totalRecords()"
+                [rowsPerPageOptions]="rowsPerPageOptions()" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} authorizers" dataKey="id"
+                (onLazyLoad)="onLazyLoad($event)">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>title</th>
+                        <th>content</th>
+                        <th>status</th>
+                        <th class="actions-column">Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-document>
+                    <tr>
+                        <td>
+                            <div class="flex align-items-center gap-2">
+                                {{document.title}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex align-items-center gap-2">
+
+                                {{document.content}}
+                            </div>
+                        </td>
+                        <td>
+                            {{document.status}}
+                        </td>
+                        <td class="actions-column">
+                            <div class="action-buttons">
+                                <button pButton type="button" icon="pi pi-eye" class="p-button-text p-button-rounded"
+                                    pTooltip="View" tooltipPosition="top" (click)="viewDocument(document)">
+                                </button>
+
+                                <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-rounded"
+                                    pTooltip="Edit" tooltipPosition="top" (click)="editDocument(document)">
+                                </button>
+
+                                <button pButton type="button" icon="pi pi-trash"
+                                    class="p-button-text p-button-rounded p-button-danger" pTooltip="Delete"
+                                    tooltipPosition="top" (click)="deleteDocument(document)">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="pi pi-palette"></i>
+                                </div>
+                                <h3>No Document Found</h3>
+                                <p>
+                                    {{ searchTerm ? 'Try adjusting your search.' : 'Start by creating a new document.'
+                                    }}
+                                </p>
+
+                                @if (!searchTerm) {
+                                <button pButton type="button" label="New Document" icon="pi pi-plus"
+                                    (click)="openNew()">
+                                </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="loadingbody">
+                    <tr>
+                        <td colspan="4">
+                            <div class="flex justify-center items-center gap-3 py-8">
+                                <i class="pi pi-spin pi-spinner"></i>
+                                <span>Loading authorizer...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </p-card>
+</div>
+
+<!-- CREATE / EDIT CONFIG DIALOG -->
+<p-dialog [visible]="configDialogVisible()" (visibleChange)="onConfigDialogVisibleChange($event)" [modal]="true"
+    [draggable]="false" [resizable]="false" [closable]="!saving()" [closeOnEscape]="!saving()"
+    [style]="{ width: '720px' }" [breakpoints]="{ '960px': '85vw', '640px': '95vw' }"
+    [header]="isEditMode() ? 'Edit Document' : 'New Document'">
+
+    <form [formGroup]="authorizerForm" novalidate>
+        <div class="dialog-content">
+            <div class="dialog-intro">
+                <div>
+                    <h3>{{ isEditMode() ? 'Update Document' : 'Create Document' }}</h3>
+                    <p>
+                        {{ isEditMode() ? 'Update Document information below.' : 'Enter Document information below.'
+                        }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="authorizer-form">
+                <!--Title -->
+                <div class="form-field">
+                    <label for="title">
+                        Title <span class="required">*</span>
+                    </label>
+                    <input pInputText id="title" formControlName="title" placeholder="Enter title" fluid />
+                    @if (submitted() && authorizerForm.get('title')?.hasError('required')) {
+                    <small class="validation-message">title is required.</small>
+                    }
+                </div>
+
+                <!--Content-->
+                <div class="form-field">
+                    <label for="content">
+                        Content <span class="required">*</span>
+                    </label>
+                    <input pInputText id="content" formControlName="content" placeholder="Enter content" fluid />
+                    @if (submitted() && authorizerForm.get('content')?.hasError('required')) {
+                    <small class="validation-message">Content is required.</small>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="dialog-footer">
+            <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-text" [disabled]="saving()"
+                (click)="hideDialog()">
+            </button>
+
+            <button pButton type="button" [label]="isEditMode() ? 'Update Document' : 'Create Document'"
+                [icon]="isEditMode() ? 'pi pi-check' : 'pi pi-plus'" [loading]="saving()" [disabled]="saving()"
+                (click)="saveDocument()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- VIEW CONFIG DIALOG -->
+<p-dialog [visible]="configViewDialogVisible()" (visibleChange)="onViewDialogVisibleChange($event)" [modal]="true"
+    [draggable]="false" [resizable]="false" header="Document Details" [style]="{ width: '500px' }">
+
+    @if (selectedAuthorizer()) {
+    <div class="user-profile space-y-3">
+        <p><strong>Title:</strong> {{ selectedAuthorizer()?.title || '-' }}</p>
+        <p><strong>Content:</strong> {{ selectedAuthorizer()?.content || '-' }}</p>
+        <p><strong>Status:</strong> {{ selectedAuthorizer()?.status || '-' }}</p>
+    </div>
+    }
+
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Close" icon="pi pi-times" class="p-button-text" (click)="hideViewDialog()">
+        </button>
+    </ng-template>
+</p-dialog>
+
+<!-- GLOBAL COMPONENTS -->
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
