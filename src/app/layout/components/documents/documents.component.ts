@@ -26,7 +26,7 @@ export class Documents {
     private readonly userService = inject(UserService);
     private readonly storageService = inject(StorageService);
     private readonly fb = inject(FormBuilder);
-    public readonly user = signal<UserSession>({username: '',role: ''});
+    public readonly user = signal<UserSession>({ username: '', role: '' });
     ngOnInit() {
         this.titleService.setTitle('Documents | ECB Technology Assignment');
         const role = this.storageService.getItem('USER_ROLE');
@@ -35,9 +35,12 @@ export class Documents {
                 ...(currentUser || {}),
                 role: role
             }));
-        } 
-        if(role=='Authorizer')
-        this.loadDocuments(1,10,'Checked')
+        }
+        if (role == 'Authorizer') {
+            this.loadDocuments(1, 10, 'Checked');
+        } else if (role == 'Checker') {
+            this.loadDocuments(1, 10, 'Pending');
+        }
     }
     searchTerm: string = '';
     totalRecords = signal<number>(0);
@@ -58,9 +61,9 @@ export class Documents {
         content: ['', Validators.required]
     });
 
-    loadDocuments(pageNumber: number = 1, pageSize: number = 10, searchTerm: string = ''): void {
+    loadDocuments(pageNumber: number = 1, pageSize: number = 10, status: string = ''): void {
         this.loading.set(true);
-        this.userService.getAll({ pageNumber, pageSize, searchTerm }).subscribe({
+        this.userService.getAll({ pageNumber, pageSize, status }).subscribe({
             next: (response: any) => {
                 console.log(response);
                 this.documents.set(response.data || []);
@@ -78,7 +81,13 @@ export class Documents {
         const pageSize = event.rows ?? 10;
         this.pageSize.set(pageSize);
         this.first.set(event.first ?? 0);
-        this.loadDocuments(pageNumber, pageSize, this.searchTerm);
+        if (this.user().role == 'Authorizer') {
+            this.loadDocuments(1, 10, 'Checked');
+        } else if (this.user().role == 'Checker') {
+            this.loadDocuments(1, 10, 'Pending');
+        } else {
+            this.loadDocuments(pageNumber, pageSize, this.searchTerm);
+        }
     }
     openNew(): void {
         this.isEditMode.set(false);
@@ -86,7 +95,42 @@ export class Documents {
         this.authorizerForm.reset();
         this.configDialogVisible.set(true);
     }
-
+    ApprovedDocument(document: any): void {
+        let status: any = { status: '' };
+        if (this.user().role == 'Authorizer') {
+            status.status='Authorized'
+        } else if (this.user().role == 'Checker') {
+            status.status='Checked'
+        }
+        this.confirmationService.confirm({
+            message: 'Are you sure to Approve this Document?',
+            header: 'Confirm',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.userService.approve(document.id, status).subscribe({
+                    next: (value: any) => {
+                        if (value) {
+                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Document Approved Successfully', life: 3000 });
+                            if (this.user().role == 'Authorizer') {
+                                this.loadDocuments(1, 10, 'Authorized');
+                            } else if (this.user().role == 'Checker') {
+                                this.loadDocuments(1, 10, 'Pending');
+                            } else {
+                                this.loadDocuments(this.first() / this.pageSize() + 1, this.pageSize(), this.searchTerm);
+                            }
+                        } else {
+                            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to approve document' });
+                        }
+                    },
+                    error: (error) => {
+                        debugger;
+                        const errorMessage = error?.error?.message || error?.message || 'Failed to approve document';
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage });
+                    }
+                });
+            }
+        });
+    }
     editDocument(document: any): void {
         this.isEditMode.set(true);
         this.submitted.set(false);

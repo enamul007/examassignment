@@ -7,7 +7,7 @@ import { FORM_IMPORTS } from '@/app/core/shared/imports/form-imports/form-import
 import { DATA_IMPORTS } from '@/app/core/shared/imports/data-imports/data-imports';
 import { environment } from '@/app/core/environments/environment';
 import { AuthorizerService } from '@/app/core/services/authorizer.services';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 //--------------
 @Component({
@@ -19,6 +19,7 @@ import { ActivatedRoute } from '@angular/router';
     styleUrl: './authorizer.component.scss'
 })
 export class Authorizers {
+    private readonly router = inject(Router);
     title: string | null = null;
     private route = inject(ActivatedRoute);
     private readonly pagination = environment.pagination;
@@ -30,6 +31,9 @@ export class Authorizers {
     ngOnInit() {
         this.titleService.setTitle('Authorizer | ECB Technology Assignment');
         this.title = this.route.snapshot.paramMap.get('title');
+    }
+    GoTodashboard(): void {
+         this.router.navigate(['/documents']);
     }
     searchTerm: string = '';
     totalRecords = signal<number>(0);

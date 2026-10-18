@@ -24,41 +24,41 @@ export class LoginComponent {
     }
     loginForm!: FormGroup;
     systemname = signal<string>('ECB Technology Assignment!');
-   onSubmit() {
-    if (this.loginForm.valid) {
-        this.authService.login(this.loginForm.value).subscribe({
-            next: (response) => {
-                console.log('Login successful!', response);
+    onSubmit() {
+        if (this.loginForm.valid) {
+            this.authService.login(this.loginForm.value).subscribe({
+                next: (response) => {
+                    console.log('Login successful!', response);
 
-                let routePath = '';
-                switch (response.role) {
-                    case 'User':
-                        routePath = '/documents';
-                        break;
-                    case 'Checker':
-                        routePath = '/checker';
-                        break;
-                    case 'Authorizer':
-                        routePath = '/authorizer';
-                        break;
-                    default:
-                        routePath = '/auth/login';
-                        break;
+                    let routePath = '';
+                    switch (response.role) {
+                        case 'User':
+                            routePath = '/documents';
+                            break;
+                        case 'Checker':
+                            routePath = '/checker';
+                            break;
+                        case 'Authorizer':
+                            routePath = '/authorizer';
+                            break;
+                        default:
+                            routePath = '/auth/login';
+                            break;
+                    }
+                    const title = `This is ${response.role} Page`;
+                    if (response.role === 'User') {
+                        this.router.navigate([routePath]);
+                    } else {
+                        this.router.navigate([routePath, title]);
+                    }
+                },
+                error: (err) => {
+                    this.router.navigate(['/auth/login']);
+                    console.error('Login failed!', err);
                 }
-                const title = `This is ${response.role} Page`;
-                if(response.role==='User'){
-                this.router.navigate([routePath]);
-                }else{
-                    this.router.navigate([routePath, title]);
-                }
-            },
-            error: (err) => {
-                this.router.navigate(['/auth/login']);
-                console.error('Login failed!', err);
-            }
-        });
-    } else {
-        this.loginForm.markAllAsTouched();
+            });
+        } else {
+            this.loginForm.markAllAsTouched();
+        }
     }
-}
 }

@@ -6,10 +6,10 @@ import { API_ENDPOINTS } from '../constants/api-endpoints/api-endpoints';
 import { PagedResult } from '../models/paged-result';
 import { buildParams } from './service-params';
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
-export class UserService extends BaseCrudService{   
-  private readonly httpClient = inject(HttpClient);
+export class UserService extends BaseCrudService {
+    private readonly httpClient = inject(HttpClient);
     constructor() {
         super(API_ENDPOINTS.baseUrl);
     }
@@ -30,5 +30,9 @@ export class UserService extends BaseCrudService{
 
     override delete(id: string): Observable<boolean> {
         return this.httpClient.delete<boolean>(`${API_ENDPOINTS.authorizer}/${id}`);
+    }
+    approve(id: string | number, request: any): Observable<any> {
+        const url = API_ENDPOINTS.baseUrl+`/authorizer/requests/${id}/authorize`;
+        return this.httpClient.put<any>(url, request);
     }
 }

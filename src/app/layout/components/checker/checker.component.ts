@@ -21,6 +21,7 @@ import { CheckerService } from '@/app/core/services/checker.services';
     styleUrl: './checker.component.scss'
 })
 export class Checkers {
+    private readonly router = inject(Router);
     title: string | null = null;
     private route = inject(ActivatedRoute);
     private readonly pagination = environment.pagination;
@@ -75,11 +76,8 @@ export class Checkers {
         this.first.set(event.first ?? 0);
         this.loadAuthorizers(pageNumber, pageSize, this.searchTerm);
     }
-    openNew(): void {
-        this.isEditMode.set(false);
-        this.submitted.set(false);
-        this.authorizerForm.reset();
-        this.configDialogVisible.set(true);
+    GoTodashboard(): void {
+         this.router.navigate(['/documents']);
     }
 
     editConfig(authorizer: any): void {

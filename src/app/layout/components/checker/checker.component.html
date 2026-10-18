@@ -1,10 +1,21 @@
 <div class="space-y-6">
-    <p-card class="[&_.p-card-body]:p-4 [&_.p-card-content]:p-0">
+     <p-card class="[&_.p-card-body]:p-4 [&_.p-card-content]:p-0">
         <div class="flex justify-between items-center w-full">
+            <!-- Left: Title Section -->
             <div class="flex align-items-center gap-3">
-                <div>
-                    <h1 class="m-0 text-xl font-bold">{{this.title}}</h1>
+                <div class="title-icon">
+                    <i class="pi pi-palette text-2xl"></i>
                 </div>
+                <div>
+                   <h1 class="m-0 text-xl font-bold">{{this.title}}</h1>
+                </div>
+            </div>
+
+            <!-- Right: Action Button -->
+            <div class="shrink-0">
+                <button pButton type="button" label="Go to dashboard" icon="pi pi-plus" class="add-user-button"
+                    (click)="GoTodashboard()">
+                </button>
             </div>
         </div>
     </p-card>

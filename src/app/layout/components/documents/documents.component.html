@@ -50,7 +50,12 @@
                         <button pButton type="button" icon="pi pi-refresh" class="p-button-text refresh-button"
                             pTooltip="Refresh" tooltipPosition="top" (click)="loadDocuments(1, pageSize(), 'Checked')">
                         </button>
-                        }@else{
+                        }@else if(user().role=='Checker'){
+                        <button pButton type="button" icon="pi pi-refresh" class="p-button-text refresh-button"
+                            pTooltip="Refresh" tooltipPosition="top" (click)="loadDocuments(1, pageSize(), 'Pending')">
+                        </button>
+                        }
+                        @else{
                         <button pButton type="button" icon="pi pi-refresh" class="p-button-text refresh-button"
                             pTooltip="Refresh" tooltipPosition="top" (click)="loadDocuments(1, pageSize(), '')">
                         </button>
@@ -96,11 +101,23 @@
                                 <button pButton type="button" icon="pi pi-eye" class="p-button-text p-button-rounded"
                                     pTooltip="View" tooltipPosition="top" (click)="viewDocument(document)">
                                 </button>
-
+                                @if(user().role=='Checker'){
+                                <button pButton type="button" icon="pi pi-check-circle"
+                                    class="p-button-text p-button-rounded" pTooltip="Approved" tooltipPosition="top"
+                                    (click)="ApprovedDocument(document)">
+                                </button>
+                                }
+                                @else if(user().role=='Authorizer'){
+                                <button pButton type="button" icon="pi pi-check-circle"
+                                    class="p-button-text p-button-rounded" pTooltip="Approved" tooltipPosition="top"
+                                    (click)="ApprovedDocument(document)">
+                                </button>
+                                }
+                                @else{
                                 <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-rounded"
                                     pTooltip="Edit" tooltipPosition="top" (click)="editDocument(document)">
                                 </button>
-
+                                }
                                 <button pButton type="button" icon="pi pi-trash"
                                     class="p-button-text p-button-rounded p-button-danger" pTooltip="Delete"
                                     tooltipPosition="top" (click)="deleteDocument(document)">
@@ -114,9 +131,6 @@
                     <tr>
                         <td colspan="4">
                             <div class="empty-state">
-                                <div class="empty-icon">
-                                    <i class="pi pi-palette"></i>
-                                </div>
                                 <h3>No Document Found</h3>
                                 <p>
                                     {{ searchTerm ? 'Try adjusting your search.' : 'Start by creating a new document.'

@@ -1,10 +1,9 @@
 import { Routes } from '@angular/router';
-import { AppLayout } from '../../layout/components/layout/app.layout.component';
 import { LoginComponent } from '@/app/layout/components/login/login.component';
 import { authGuard } from '../guards/auth.guard';
 import { Authorizers } from '@/app/layout/components/authorizer/authorizer.component';
 import { Checkers } from '@/app/layout/components/checker/checker.component';
-import { Documents } from '@/app/layout/components/documents/user.component';
+import { Documents } from '@/app/layout/components/documents/documents.component';
 import { Users } from '@/app/layout/components/User/user.component';
 
 export const appRoutes: Routes = [
