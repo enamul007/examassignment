@@ -52,10 +52,15 @@ For end-to-end (e2e) testing, run:
 ```bash
 ng e2e
 ```
-the username/userid and their password is
-1.(username/userid)user1 & (password)Password123!
-2.(username/userid)authorizer1 & (password)Password123!
-3.(username/userid)checker1 & (password)Password123!
+### 🔑 Application Login Credentials
+
+To test the application, you can use the following default user roles and credentials:
+
+| Role / Type | Username / User ID | Password |
+| :--- | :--- | :--- |
+| **1. Standard User** | `user1` | `Password123!` |
+| **2. Authorizer** | `authorizer1` | `Password123!` |
+| **3. Checker** | `checker1` | `Password123!` |
 
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
